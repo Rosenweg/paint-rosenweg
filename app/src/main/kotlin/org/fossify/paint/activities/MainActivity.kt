@@ -1,5 +1,7 @@
 package org.fossify.paint.activities
 
+import org.fossify.commons.extensions.getAlertDialogBuilder
+import org.fossify.commons.helpers.ensureBackgroundThread
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -106,6 +108,11 @@ class MainActivity : SimpleActivity(), CanvasListener {
         appLaunched(BuildConfig.APPLICATION_ID)
         setupOptionsMenu()
         refreshMenuItems()
+        // Rosenweg: Hinweis beim ersten Start, persoenliche Einstellungen aus der Nextcloud
+        if (savedInstanceState == null) {
+            ch.rosenweg4303.cloud.Hinweis.beimErstenStart(this, "Deine Zeichnungen")
+            ch.rosenweg4303.cloud.Einstellungen.abgleichen(this) { recreate() }
+        }
 
         setupEdgeToEdge(
             padBottomSystem = listOf(binding.mainScrollview, binding.strokeWidthBar),
@@ -312,6 +319,15 @@ class MainActivity : SimpleActivity(), CanvasListener {
     }
 
     private fun tryOpenFile() {
+        // Rosenweg: zuerst die Zeichnungen aus der Nextcloud (Regel 6)
+        if (ch.rosenweg4303.cloud.KontoSpeicher(this).laden() != null) {
+            ausNextcloudOeffnen()
+            return
+        }
+        systemOeffnen()
+    }
+
+    private fun systemOeffnen() {
         Intent(Intent.ACTION_GET_CONTENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "image/*"
@@ -583,6 +599,11 @@ class MainActivity : SimpleActivity(), CanvasListener {
     }
 
     private fun trySaveImage() {
+        // Rosenweg: angemeldet -> direkt nach Persönlich/Paint (nicht bei Bearbeiten/Aufnehmen fuer andere Apps)
+        if (!isEditIntent && !isImageCaptureIntent && ch.rosenweg4303.cloud.KontoSpeicher(this).laden() != null) {
+            inNextcloudSpeichern()
+            return
+        }
         if (isQPlus()) {
             SaveImageDialog(
                 activity = this,
@@ -614,6 +635,79 @@ class MainActivity : SimpleActivity(), CanvasListener {
         } else {
             getStoragePermission {
                 saveImage()
+            }
+        }
+    }
+
+    // ---- Rosenweg: Zeichnungen in Persönlich/Paint ----
+
+    private fun inNextcloudSpeichern() {
+        SaveImageDialog(
+            activity = this,
+            defaultPath = defaultPath,
+            defaultFilename = defaultFilename,
+            defaultExtension = defaultExtension,
+            hidePath = true
+        ) { _, filename, extension ->
+            defaultFilename = filename
+            defaultExtension = extension
+            config.lastSaveExtension = extension
+            val dir = File(cacheDir, "rosenweg-paint").apply { mkdirs() }
+            val datei = File(dir, "$filename.$extension")
+            val fertig: (Long) -> Unit = { hash ->
+                savedPathsHash = hash
+                ch.rosenweg4303.cloud.Hochladen.einreihen(
+                    this, datei, "${ch.rosenweg4303.cloud.Ablage.ordner(NC_PAINT)}/$filename.$extension",
+                    lokalLoeschen = true,
+                    mime = if (extension == SVG) "image/svg+xml" else "image/$extension",
+                    ueberschreiben = true
+                )
+                toast(getString(R.string.rw_gespeichert, "${ch.rosenweg4303.cloud.Ablage.ordner(NC_PAINT)}/$filename.$extension"))
+            }
+            val out = java.io.FileOutputStream(datei)
+            if (extension == SVG) {
+                Svg.saveToOutputStream(this, out, binding.myCanvas, fertig)
+            } else {
+                saveToOutputStream(out, extension.getCompressionFormat(), false, fertig)
+            }
+        }
+    }
+
+    private fun ausNextcloudOeffnen() {
+        ensureBackgroundThread {
+            val zeichnungen = ch.rosenweg4303.cloud.Ablage.dateien(this, NC_PAINT).orEmpty()
+                .filter { it.name.substringAfterLast('.', "").lowercase() in setOf("png", "jpg", "jpeg", "svg", "webp") }
+                .sortedByDescending { it.geaendert }
+            runOnUiThread {
+                val punkte = zeichnungen.map { it.name } + getString(R.string.rw_andere_datei)
+                getAlertDialogBuilder()
+                    .setTitle(R.string.rw_zeichnung_oeffnen)
+                    .setItems(punkte.toTypedArray()) { _, i ->
+                        if (i == zeichnungen.size) systemOeffnen() else zeichnungLaden(zeichnungen[i])
+                    }
+                    .show()
+            }
+        }
+    }
+
+    private fun zeichnungLaden(e: ch.rosenweg4303.cloud.Eintrag) {
+        ensureBackgroundThread {
+            try {
+                val datei = ch.rosenweg4303.cloud.Ablage.lokaleKopie(this, e.pfad)
+                runOnUiThread {
+                    if (tryOpenUri(Uri.fromFile(datei), intent)) {
+                        // erneutes Speichern ueberschreibt diese Zeichnung
+                        defaultFilename = datei.nameWithoutExtension
+                        defaultExtension = when (datei.extension.lowercase()) {
+                            "svg" -> SVG
+                            "png" -> PNG
+                            else -> JPG
+                        }
+                        savedPathsHash = 0
+                    }
+                }
+            } catch (ex: Exception) {
+                showErrorToast(ex)
             }
         }
     }
@@ -831,3 +925,6 @@ class MainActivity : SimpleActivity(), CanvasListener {
         }
     }
 }
+
+/** Rosenweg: Ordner der Zeichnungen in Persönlich */
+private const val NC_PAINT = "Paint"

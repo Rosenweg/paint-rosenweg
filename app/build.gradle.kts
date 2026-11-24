@@ -151,6 +151,7 @@ dependencies {
     testImplementation(libs.robolectric)
     implementation(libs.clipper2)
     implementation(libs.fossify.commons)
+    implementation(libs.rosenweg.cloud) // Rosenweg: Zeichnungen in der Nextcloud
     implementation(libs.androidx.print)
     detektPlugins(libs.compose.detekt)
 }

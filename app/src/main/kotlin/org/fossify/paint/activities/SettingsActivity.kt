@@ -31,6 +31,7 @@ class SettingsActivity : SimpleActivity() {
         setupCustomizeColors()
         setupUseEnglish()
         setupLanguage()
+        setupNextcloud()
         setupPreventPhoneFromSleeping()
         setupBrushSize()
         setupAllowZoomingCanvas()
@@ -61,6 +62,19 @@ class SettingsActivity : SimpleActivity() {
                 config.useEnglish = settingsUseEnglish.isChecked
                 System.exit(0)
             }
+        }
+    }
+
+    /** Rosenweg: Anmeldung an der Nextcloud, damit Zeichnungen dort liegen. */
+    private fun setupNextcloud() {
+        val konto = ch.rosenweg4303.cloud.KontoSpeicher(this).laden()
+        binding.settingsNextcloud.text = if (konto == null) {
+            getString(org.fossify.paint.R.string.rw_nextcloud_aus)
+        } else {
+            getString(org.fossify.paint.R.string.rw_nextcloud_an, konto.benutzer)
+        }
+        binding.settingsNextcloudHolder.setOnClickListener {
+            startActivity(android.content.Intent(this, ch.rosenweg4303.cloud.AnmeldenActivity::class.java))
         }
     }
 
