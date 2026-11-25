@@ -1,44 +1,37 @@
-# Fossify Paint
+# Rosenweg Paint
 
-<img alt="Logo" src="graphics/icon.webp" width="120" />
+Zeichen-App für die Smartphones der Siedlung Rosenweg in Kaiseraugst. Zeichnungen werden in der Rosenweg-Nextcloud der Person gespeichert (`Persönlich/Paint`) und lassen sich von dort wieder öffnen.
 
-<a href='https://play.google.com/store/apps/details?id=org.fossify.paint'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' height=80/><a href="https://f-droid.org/packages/org.fossify.paint/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on-en.svg" alt="Get it on F-Droid" height=80/></a> <a href="https://apt.izzysoft.de/fdroid/index/apk/org.fossify.paint"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height=80/></a>
+## Im Rosenweg
 
-Fossify Paint is your go-to app for effortless sketching and creative expression. Whether you want
-to doodle something fun or craft detailed digital art, Fossify Paint is built to give you complete
-control while respecting your privacy.
+- Speichern überschreibt die Zeichnung in `Persönlich/Paint`; Öffnen zeigt die Zeichnungen aus der Nextcloud.
+- **Rosenweg-Nextcloud:** Anmeldung über den Login der Nextcloud mit dem Rosenweg-Konto im Browser; die App erhält ein eigenes App-Passwort, nie das eigentliche Passwort. Auf geteilten Telefonen kommt der Zugang von Rosenweg Gerät. Hochgeladen wird über eine Warteschlange, sobald Netz da ist; lokal gelöscht wird erst, wenn die Nextcloud den Empfang bestätigt hat. Beim ersten Start fragt die App einmal, ob man sich anmelden möchte ("Nein, danke" wird gemerkt, Anmelden geht weiter über die Einstellungen).
+- **Einstellungen pro Person:** Die Einstellungen der App liegen in der Nextcloud der Person (`Persönlich/.rosenweg/`) und sind auf jedem Telefon wieder da, auf dem sie angemeldet ist. Gerätebezogenes (Widgets, Pfade, Zähler) bleibt auf dem Gerät.
+- **Rosenweg Updater:** Auf Handys ohne Rosenweg Gerät prüft die App den App-Katalog der Telefonanlage und bietet Aktualisierungen für alle installierten Rosenweg-Apps an. Jede APK wird vorher geprüft (Prüfsumme, Paketname, Version, Rosenweg-Signatur); Android lässt jede Installation bestätigen. Auf geteilten Telefonen übernimmt das Rosenweg Gerät.
 
-**✏️ QUICK & EASY SKETCHING:**  
-Start drawing immediately—no complicated setup or advanced tools needed. Just choose your brush
-size, pick your color, and bring your ideas to life on a clean digital canvas.
+## Installation
 
-**🎨 FULLY CUSTOMIZABLE ART SPACE:**  
-Customize every aspect of your drawing experience. Change the canvas background, adjust brush size,
-and fine-tune colors with precision using hex codes.
+- **Geteilte Rosenweg-Telefone:** Rosenweg Gerät installiert die App automatisch aus dem App-Katalog der Telefonanlage und hält sie aktuell.
+- **Eigenes Handy:** APK von [www.rosenweg4303.ch/apps](https://www.rosenweg4303.ch/apps) herunterladen und installieren. Danach hält der Rosenweg Updater die Rosenweg-Apps aktuell.
 
-**🖼️ VERSATILE FILE FORMATS:**  
-Fossify Paint supports popular formats like PNG, JPG, and SVG. Whether you’re saving a simple sketch
-or sharing detailed artwork, you can easily export your creations in the format that suits your
-needs.
+Die App gibt es nicht im Play Store und nicht auf F-Droid. Sie ist mit dem Rosenweg-Schlüssel signiert; Fassungen anderer Herkunft lassen sich nicht darüber installieren.
 
-**🛡️ PRIVACY & SECURITY BUILT-IN:**  
-As with all Fossify apps, Fossify Paint works completely offline with no intrusive permissions. Your
-artwork stays secure on your device, ensuring peace of mind.
+## Bauen
 
-**🌐 OPEN-SOURCE COMMITMENT:**  
-Fossify Paint is open-source and transparent. Explore the code on GitHub, contribute to the project,
-and be part of a community that values privacy and creativity.
+Die App baut gegen den Rosenweg-Fork der Fossify Commons und die Rosenweg-Module `cloud`/`updater` (`ch.rosenweg4303:*`). Diese kommen aus dem lokalen Maven-Repository (`mavenLocal()`), also zuerst [commons-rosenweg](https://github.com/Rosenweg/commons-rosenweg) veröffentlichen:
 
-Fossify Paint caters to artists of all ages and skill levels—create, customize, and share your
-art, all while keeping your privacy intact.
+```bash
+# in commons-rosenweg, Zweig rosenweg
+./gradlew -PVERSION=7.1.3-rosenweg.1 publishToMavenLocal
 
-➡️ Explore more Fossify apps: https://www.fossify.org<br>
-➡️ Open-Source Code: https://www.github.com/FossifyOrg<br>
-➡️ Join the community on Reddit: https://www.reddit.com/r/Fossify<br>
-➡️ Connect on Telegram: https://t.me/Fossify
+# in diesem Repo, Zweig rosenweg
+./gradlew assembleFossRelease
+```
 
-<div align="center">
-<img alt="App image" src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png" width="30%">
-<img alt="App image" src="fastlane/metadata/android/en-US/images/phoneScreenshots/2_en-US.png" width="30%">
-<img alt="App image" src="fastlane/metadata/android/en-US/images/phoneScreenshots/3_en-US.png" width="30%">
-</div>
+Die APK liegt danach unter `app/build/outputs/apk/foss/release/`. Signiert wird mit `keystore.properties` (Vorlage: `keystore.properties_sample`); die Datei und der Schlüssel liegen nicht im Repo. Paketname: `ch.rosenweg4303.paint`.
+
+## Herkunft und Lizenz
+
+Fork von [Fossify Paint](https://github.com/FossifyOrg/Paint). Der Zweig `main` folgt dem Original, die Rosenweg-Anpassungen liegen im Zweig `rosenweg`. Herzlichen Dank an das Fossify-Team und alle Mitwirkenden für die solide Grundlage.
+
+Lizenz: GNU General Public License v3.0, siehe [LICENSE](LICENSE).
