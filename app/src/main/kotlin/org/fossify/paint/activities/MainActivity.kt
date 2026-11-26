@@ -182,7 +182,7 @@ class MainActivity : SimpleActivity(), CanvasListener {
         // es kommt der gemeinsame Anmeldeschirm (commons-rosenweg: Karte oder Rosenweg-Konto, "Zurueck"
         // schliesst die App). Geteilte Telefone (Rosenweg Geraet): nie, dort gilt dessen Anmeldung.
         // Nicht, wenn eine andere App ein Bild verlangt (IMAGE_CAPTURE) - das geht ohne Nextcloud.
-        if (!isImageCaptureIntent && ch.rosenweg4303.cloud.RosenwegAnmeldeSchirm.zeigenFallsNoetig(this)) return
+        if (!isImageCaptureIntent && ch.rosenweg4303.cloud.RosenwegAnmeldeSchirm.zeigenFallsNoetig(this, nextcloud = true)) return
         setupTopAppBar(binding.mainAppbar, topBarColor = getProperBackgroundColor())
 
         binding.apply {
