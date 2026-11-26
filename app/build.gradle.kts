@@ -119,7 +119,8 @@ android {
         )
     }
 
-    namespace = project.property("APP_ID").toString()
+    // Rosenweg: nur die applicationId ist eigen (ch.rosenweg4303.paint); Kotlin-Namensraum wie im Original.
+    namespace = "org.fossify.paint"
 
     lint {
         checkReleaseBuilds = false
@@ -150,6 +151,7 @@ dependencies {
     testImplementation(libs.robolectric)
     implementation(libs.clipper2)
     implementation(libs.fossify.commons)
+    implementation(libs.rosenweg.cloud) // Rosenweg: Zeichnungen in der Nextcloud
     implementation(libs.androidx.print)
     detektPlugins(libs.compose.detekt)
 }

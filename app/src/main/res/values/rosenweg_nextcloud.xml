@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rw_nextcloud">Rosenweg-Nextcloud</string>
+    <string name="rw_nextcloud_aus">Nicht angemeldet – Zeichnungen werden wie bisher über die Dateiauswahl gespeichert</string>
+    <string name="rw_nextcloud_an">%s – Zeichnungen werden in Persönlich/Paint gespeichert</string>
+    <string name="rw_gespeichert">Gespeichert: %s</string>
+    <string name="rw_zeichnung_oeffnen">Zeichnung öffnen</string>
+    <string name="rw_andere_datei">Andere Datei …</string>
+</resources>
