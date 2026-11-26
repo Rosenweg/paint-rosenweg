@@ -16,6 +16,7 @@
     <ID>MagicNumber:MyCanvas.kt$MyCanvas.ScaleListener$0.1f</ID>
     <ID>MagicNumber:MyCanvas.kt$MyCanvas.ScaleListener$10.0f</ID>
     <ID>MaxLineLength:MainActivity.kt$MainActivity$.</ID>
+    <ID>MaxLineLength:MainActivity.kt$MainActivity$if (!isImageCaptureIntent &amp;&amp; ch.rosenweg4303.cloud.RosenwegAnmeldeSchirm.zeigenFallsNoetig(this, nextcloud = true)) return</ID>
     <ID>MaxLineLength:MainActivity.kt$MainActivity$toast(getString(R.string.rw_gespeichert, "${ch.rosenweg4303.cloud.Ablage.ordner(NC_PAINT)}/$filename.$extension"))</ID>
     <ID>MaxLineLength:MyCanvas.kt$MyCanvas$if</ID>
     <ID>MaxLineLength:SettingsActivity.kt$SettingsActivity$settingsUseEnglishHolder.beVisibleIf((config.wasUseEnglishToggled || Locale.getDefault().language != "en") &amp;&amp; !isTiramisuPlus())</ID>
